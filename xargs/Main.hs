@@ -1,6 +1,7 @@
 module Main (main) where
 
 import System.Environment
+import System.Process
 import Data.List
 import Data.Traversable
 
@@ -16,7 +17,6 @@ substitute str@(hd:tl) (NonemptyString match) r =
             False -> hd:substitute tl (NonemptyString match) r
         False -> str
 
---traverse (>>= func ) (repeat getLine)
 
 main :: IO ()
 main = do
@@ -28,9 +28,12 @@ main = do
             if length __delim > 0
             then
                 let delim = NonemptyString __delim in
-                    let d = substitute (concat (tail argv)) delim in
+                    let a = substitute (concat (intersperse " " (tail argv))) delim in
+                    let b = traverse (>>= callCommand . a) (repeat getLine) in
                     --putStrLn $ substitute "Hello, Haskell!" (NonemptyString "Hell") "G"
-                    putStrLn $ d "ABC"
+                    --do
+                    --callCommand (a "ABC")
+                    (b >>= return . head) >>= return
             else
                 help
         else help
