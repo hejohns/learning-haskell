@@ -2,8 +2,11 @@ module Main (main) where
 
 import System.Environment
 import System.Process
+import System.IO
+import System.Exit
 import Data.List
 import Data.Traversable
+import Data.Foldable
 
 newtype NonemptyString = NonemptyString String
 
@@ -29,11 +32,12 @@ main = do
             then
                 let delim = NonemptyString __delim in
                     let a = substitute (concat (intersperse " " (tail argv))) delim in
-                    let b = traverse (>>= callCommand . a) (repeat getLine) in
+                    let b = repeat (isEOF >>= (\x -> if x then exitWith ExitSuccess else getLine)) in
+                    let c = traverse_ (>>= callCommand . a) b in
                     --putStrLn $ substitute "Hello, Haskell!" (NonemptyString "Hell") "G"
                     --do
                     --callCommand (a "ABC")
-                    (b >>= return . head) >>= return
+                    c
             else
                 help
         else help
