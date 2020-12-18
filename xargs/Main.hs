@@ -12,7 +12,7 @@ substitute "" (NonemptyString match) r = ""
 substitute str@(hd:tl) (NonemptyString match) r =
     case length match <= length str of
         True -> case isPrefixOf match str of
-            True -> r ++ drop (length match) str
+            True -> r ++ substitute (drop (length match) str) (NonemptyString match) r
             False -> hd:substitute tl (NonemptyString match) r
         False -> str
 
@@ -20,4 +20,19 @@ substitute str@(hd:tl) (NonemptyString match) r =
 
 main :: IO ()
 main = do
-    putStrLn $ substitute "Hello, Haskell!" (NonemptyString "Hell") "G"
+    argv <- getArgs
+    let maybeDelim = stripPrefix "-I" (head argv)
+    if 2 <= length argv && maybeDelim /= Nothing
+        then
+            let Just __delim = maybeDelim in
+            if length __delim > 0
+            then
+                let delim = NonemptyString __delim in
+                    let d = substitute (concat (tail argv)) delim in
+                    --putStrLn $ substitute "Hello, Haskell!" (NonemptyString "Hell") "G"
+                    putStrLn $ d "ABC"
+            else
+                help
+        else help
+    where
+    help = putStrLn "Usage: xargs -I{} string"
