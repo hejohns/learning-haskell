@@ -20,6 +20,8 @@ substitute str@(hd:tl) (NonemptyString match) r =
             False -> hd:substitute tl (NonemptyString match) r
         False -> str
 
+myFold f [] = return ()
+myFold f a@(hd:tl) = f hd >> myFold f tl
 
 main :: IO ()
 main = do
@@ -33,7 +35,8 @@ main = do
                 let delim = NonemptyString __delim in
                     let a = substitute (concat (intersperse " " (tail argv))) delim in
                     let b = repeat (isEOF >>= (\x -> if x then exitWith ExitSuccess else getLine)) in
-                    let c = traverse_ (>>= callCommand . a) b in
+                    let c = myFold (>>= callCommand . a) b in
+                    --let c = traverse_ (>>= callCommand . a) b in
                     --putStrLn $ substitute "Hello, Haskell!" (NonemptyString "Hell") "G"
                     --do
                     --callCommand (a "ABC")
