@@ -11,9 +11,9 @@ import Data.Foldable
 newtype NonEmptyString = NonEmptyString String
 
 nonEmptyString :: String -> Maybe NonEmptyString
-nonEmptyString str = if length str > 0
-    then Just $ NonEmptyString str
-    else Nothing
+nonEmptyString str
+    | length str > 0 = Just $ NonEmptyString str
+    | otherwise = Nothing
 
 {- Data.Text replace, just wanted to write it myself -}
 substitute :: String -> NonEmptyString -> String -> String
