@@ -19,6 +19,13 @@ ltail :: List a -> List a
 ltail Nil = Nil
 ltail (hd:::tl) = tl
 
+{-@ type LNonEmpty a = {v : List a | llength v > 0} @-}
+{-@ lnonEmpty :: List a -> Maybe (LNonEmpty a)@-}
+lnonEmpty :: List a -> Maybe (List a)
+lnonEmpty Nil = Nothing
+--lnonEmpty Nil = Just Nil
+lnonEmpty l@(hd:::tl) = Just l
+
 main :: IO ()
 main = (ltail (1:::(2:::(3:::Nil)))) `seq` putStrLn "Hello, Haskell!"
 --main = (ltail Nil) `seq` putStrLn "Hello, Haskell!"
