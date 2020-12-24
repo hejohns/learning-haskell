@@ -54,13 +54,9 @@ main = do
 -}
 
 {-@ type NonEmptyString = NonEmptyList Char @-}
-{-@ type NonEmptyList a = {v : [a] | llen v > 0} @-}
+{-@ type NonEmptyList a = {v : [a] | Data.List.length v > 0} @-}
 
-{-@ measure llen @-}
-{-@ llen :: [a] -> {v : Int | v >= 0} @-}
-llen :: [a] -> Int
-llen [] = 0
-llen (hd:tl) = 1 + llen tl
+{-@ measure Data.List.length :: [a] -> {v : Int | v >= 0} @-}
 
 {-@ impossible :: {v : String | false} -> a @-}
 impossible msg = error msg
@@ -72,12 +68,12 @@ substitute str match r = str
 {-@ nonEmptyString :: String -> Maybe NonEmptyString @-}
 nonEmptyString :: String -> Maybe String
 nonEmptyString "" = Nothing
-nonEmptyString str@(hd:tl) = Just str
+nonEmptyString str@(hd:tl) = Just (hd:tl)
 
 {-@ nonEmptyList :: [a] -> Maybe (NonEmptyList a) @-}
 nonEmptyList :: [a] -> Maybe [a]
 nonEmptyList [] = Nothing
-nonEmptyList l@(hd:tl) = Just l
+nonEmptyList l@(hd:tl) = Just (hd:tl)
 
 main :: IO()
 main = undefined
