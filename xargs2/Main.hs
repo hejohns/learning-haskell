@@ -1,15 +1,17 @@
+{-@ LIQUID "--reflection" @-}
 module Main (main) where
+
+import Data.List
+import Data.Traversable
+import Data.Foldable
+import Language.Haskell.Liquid.Prelude (unsafeError, liquidError)
 
 import System.Environment
 import System.Process
 import System.IO
 import System.Exit
-import Data.List
-import Data.Traversable
-import Data.Foldable
 
-newtype NonEmptyString = NonEmptyString String
-
+{-
 nonEmptyString :: String -> Maybe NonEmptyString
 nonEmptyString str
     | length str > 0 = Just $ NonEmptyString str
@@ -31,6 +33,7 @@ myFold f a@(hd:tl) = f hd >> myFold f tl
 main :: IO ()
 main = do
     argv <- getArgs
+    --if length argv
     let maybeDelim = stripPrefix "-I" (head argv)
     case (2 <= length argv, maybeDelim) of
         (True, Just delim) ->
@@ -48,3 +51,33 @@ main = do
         (_, _) -> help
     where
     help = putStrLn "Usage: xargs -I{} string"
+-}
+
+{-@ type NonEmptyString = NonEmptyList Char @-}
+{-@ type NonEmptyList a = {v : [a] | llen v > 0} @-}
+
+{-@ measure llen @-}
+{-@ llen :: [a] -> {v : Int | v >= 0} @-}
+llen :: [a] -> Int
+llen [] = 0
+llen (hd:tl) = 1 + llen tl
+
+{-@ impossible :: {v : String | false} -> a @-}
+impossible msg = error msg
+
+{-@ substitute :: String -> NonEmptyString -> String -> String @-}
+substitute :: String -> String -> String -> String
+substitute str match r = str
+
+{-@ nonEmptyString :: String -> Maybe NonEmptyString @-}
+nonEmptyString :: String -> Maybe String
+nonEmptyString "" = Nothing
+nonEmptyString str@(hd:tl) = Just str
+
+{-@ nonEmptyList :: [a] -> Maybe (NonEmptyList a) @-}
+nonEmptyList :: [a] -> Maybe [a]
+nonEmptyList [] = Nothing
+nonEmptyList l@(hd:tl) = Just l
+
+main :: IO()
+main = undefined
