@@ -14,12 +14,18 @@ llength :: List a -> Integer
 llength Nil = 0
 llength (hd:::tl) = 1 + llength tl
 
+{-@ measure llength_ @-}
+{-@ llength_ :: List a -> {v : Integer | v >= 0} @-}
+llength_ :: List a -> Integer
+llength_ Nil = 0
+llength_ (hd:::tl) = 1 + llength_ tl
+
 {-@ ltail :: {v : List a | llength v > 0} -> List a @-}
 ltail :: List a -> List a
 ltail Nil = Nil
 ltail (hd:::tl) = tl
 
-{-@ type LNonEmpty a = {v : List a | llength v > 0} @-}
+{-@ type LNonEmpty a = {v : List a | llength_ v > 0} @-}
 {-@ lnonEmpty :: List a -> Maybe (LNonEmpty a)@-}
 lnonEmpty :: List a -> Maybe (List a)
 lnonEmpty Nil = Nothing
