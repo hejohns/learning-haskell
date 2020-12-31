@@ -32,7 +32,7 @@ take' n l@(hd:tl) = hd:(take' (n - 1) tl)
 prime :: (Integral a, Eq b, Num b) => [a] -> b -> b -> [a]
 prime [] s u = []
 prime l@(h:t) s u
-    | s == u = take' s l
+    | s == u = []
     | otherwise = h:(prime (filter (\x -> (x `mod` h) /= 0) t) (s + 1) u)
 
 main :: IO ()
