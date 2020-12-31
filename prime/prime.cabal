@@ -31,3 +31,5 @@ executable prime
                        -with-rtsopts=-N
                        -fplugin=LiquidHaskell
                        -fplugin-opt=LiquidHaskell:--reflection
+                       -fplugin-opt=LiquidHaskell:--higherorder
+                       -fplugin-opt=LiquidHaskell:--exact-data-cons

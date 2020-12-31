@@ -14,4 +14,4 @@ prime a@(h:t) b c
     | otherwise = h:(prime (filter (\x -> (x `mod` h) /= 0) t) (b + 1) c)
 
 main :: IO ()
-main = putStrLn $ show $ prime [2..] 0 1000
+main = putStrLn $ show $ prime [2..10000] 0 1000
