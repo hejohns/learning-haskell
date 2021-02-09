@@ -18,16 +18,17 @@ main = do
     let (opts :: [ConsoleOptions], nonOpts :: [String], errors :: [String]) = (getOpt__ argv)
     let processOpts__ = opts
     -- yes, I know this fails
-    case head opts of
-        Help -> putStrLn helpMesg__
-        Version -> putStrLn versionMesg__
+    if length opts == 0
+    then
+        putStrLn ""
+    else
+        case head opts of
+            Help -> putStrLn helpMesg__
+            Version -> putStrLn versionMesg__
     if length nonOpts == 0
     then
         -- stdin
-        do
-        let dict = (Map.empty :: Map.Map String String)
-        let dict' = Map.insert "a" "b" dict
-        putStrLn $ show $ dict'
+        putStrLn $ show $ execState (state l) k
     else
         putStrLn $ show $ head nonOpts
     where
@@ -39,4 +40,7 @@ main = do
         ]
     helpMesg__ = "Usage: hcpp [-h] [-v]"
     versionMesg__ = "hcpp 0.0\nWritten by Some Dummy"
+    l :: Map.Map String String -> (Int, Map.Map String String)
+    l s = (0, Map.insert "a" "b" s)
+    k = (Map.empty :: Map.Map String String)
     --processOpts__ Help = a

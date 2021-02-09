@@ -24,7 +24,8 @@ executable hcpp
                        liquid-prelude,
                        liquid-base,
                        liquidhaskell >= 0.8.10.2,
-                       containers == 0.6.2.1
+                       containers == 0.6.2.1,
+                       mtl
   -- hs-source-dirs:
   default-language:    Haskell2010
   ghc-options:         -fplugin=LiquidHaskell
