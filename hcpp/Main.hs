@@ -3,6 +3,7 @@
 module Main (main) where
 import System.Environment
 import System.Console.GetOpt
+import Control.Monad.State.Lazy
 import qualified Data.Map.Lazy as Map
 
 data ConsoleOptions where
@@ -23,7 +24,10 @@ main = do
     if length nonOpts == 0
     then
         -- stdin
-        putStrLn "3"
+        do
+        let dict = (Map.empty :: Map.Map String String)
+        let dict' = Map.insert "a" "b" dict
+        putStrLn $ show $ dict'
     else
         putStrLn $ show $ head nonOpts
     where
