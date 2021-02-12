@@ -15,17 +15,17 @@ data ConsoleOptions where
 main :: IO ()
 main = do
     argv <- getArgs
-    let (opts :: [ConsoleOptions], nonOpts :: [String], errors :: [String]) = (getOpt__ argv)
+    let (opts :: [ConsoleOptions], nonOpts :: [String], errors :: [String]) = getOpt__ argv
     let processOpts__ = opts
     -- yes, I know this fails
-    if length opts == 0
+    if null opts
     then
         putStrLn ""
     else
         case head opts of
             Help -> putStrLn helpMesg__
             Version -> putStrLn versionMesg__
-    if length nonOpts == 0
+    if null nonOpts
     then
         -- stdin
         putStrLn $ show $ execState (state l) k
@@ -35,8 +35,8 @@ main = do
     getOpt__ = getOpt
         Permute
         [
-            (Option ['h'] ["help"] (NoArg Help) helpMesg__),
-            (Option ['v'] ["version"] (NoArg Version) versionMesg__)
+            Option ['h'] ["help"] (NoArg Help) helpMesg__,
+            Option ['v'] ["version"] (NoArg Version) versionMesg__
         ]
     helpMesg__ = "Usage: hcpp [-h] [-v]"
     versionMesg__ = "hcpp 0.0\nWritten by Some Dummy"
