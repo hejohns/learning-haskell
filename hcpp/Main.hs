@@ -4,8 +4,13 @@ module Main (main) where
 import System.Environment
 import System.Console.GetOpt
 import System.IO
-import Control.Monad.State.Lazy
 import qualified Data.Map.Lazy as Map
+import Control.Monad.ST
+import Data.STRef
+import Control.Monad.Trans
+import Control.Monad.Trans.Maybe
+import Data.List
+import Data.Char
 
 data ConsoleOptions where
     Help :: ConsoleOptions
@@ -13,49 +18,70 @@ data ConsoleOptions where
     deriving (Eq, Show)
 
 {-@ ignore normal @-}
-normal :: Map.Map String String -> IO (Map.Map String String)
-normal dict = do
-    done <- isEOF
-    if done
-        then return dict
-        else do
-            line <- getLine
-            normal (Map.insert "a" line dict)
-
-test a = do
-    if True
-    then
-        do
-            b <- getLine
-            return b
-    else
-        return "String"
+normal :: Handle -> Map.Map String String -> IO (Map.Map String String)
+normal han dict = do
+    done <- hIsEOF han
+    case done of
+        True ->
+            return dict
+        False -> do
+            line <- hGetLine han
+            {-
+            let line1 = dropSpaces line in
+            let line2 = stripPrefix "#" line1 in
+            case line2 of
+                Nothing ->
+                    cont
+                Just a ->
+                    let line3 = dropSpaces a in
+                    let n = fstWord in
+                    let b = 
+                False ->
+                    normal han (Map.insert "a" line dict)
+            -}
+            putStrLn line
+            return dict
+    where
+    cont = normal han dict
+    dropSpaces = dropWhile isSpace
+    fstWord = takeWhile isAlphaNum
 
 {-@ ignore main @-}
 main :: IO ()
 main = do
     argv <- getArgs
     let (opts :: [ConsoleOptions], nonOpts :: [String], errors :: [String]) = getOpt__ argv
-    let processOpts__ = opts
-    -- yes, I know this fails
-    if null opts
-    then
-        putStrLn ""
-    else
-        case head opts of
-            Help -> putStrLn helpMesg__
-            Version -> putStrLn versionMesg__
-    if null nonOpts
-    then
-        -- stdin
-        --putStrLn $ show $ execState (state l) k
-        do
-            m <- normal Map.empty
-            case m Map.!? "a" of
-                Just m' -> putStrLn $ m'
-                Nothing -> return ()
-    else
-        putStrLn $ show $ head nonOpts
+    exitEarly <- runMaybeT (do
+        case errors of
+            hd:tl -> do
+                liftIO $ hPutStrLn stderr hd
+                MaybeT $ return Nothing
+            _ ->
+                return ()
+        case opts of
+            Help:tl -> do
+                liftIO $ hPutStrLn stderr helpMesg__
+                MaybeT $ return Nothing
+            Version:tl -> do
+                liftIO $ hPutStrLn stderr versionMesg__
+                MaybeT $ return Nothing
+            _ ->
+                return ()
+        case nonOpts of
+            hd:tl ->
+            -- read from file
+                return ()
+            _ ->
+            -- read from stdin
+                return ()
+        )
+    case exitEarly of
+        Nothing -> 
+            -- exit early
+            return ()
+        Just a -> do
+            normal stdin Map.empty
+            return ()
     where
     getOpt__ = getOpt
         Permute
@@ -68,4 +94,3 @@ main = do
     l :: Map.Map String String -> (Int, Map.Map String String)
     l s = (0, Map.insert "a" "b" s)
     k = Map.empty :: Map.Map String String
-    --processOpts__ Help = a
