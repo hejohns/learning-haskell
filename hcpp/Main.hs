@@ -7,10 +7,12 @@ import System.IO
 import qualified Data.Map.Lazy as Map
 import Control.Monad.ST
 import Data.STRef
+import Control.Monad
 import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
 import Data.List
 import Data.Char
+import qualified GHC.IO
 
 data ConsoleOptions where
     Help :: ConsoleOptions
@@ -18,16 +20,33 @@ data ConsoleOptions where
     deriving (Eq, Show)
 
 {-@ ignore normal @-}
-normal :: Handle -> Map.Map String String -> IO (Map.Map String String)
+normal :: Handle -> Map.Map String String -> IO ()
 normal han dict = do
     done <- hIsEOF han
     case done of
         True ->
-            return dict
-        False -> do
-            line <- hGetLine han
-            {-
-            let line1 = dropSpaces line in
+            return ()
+        False ->
+            join $ stToIO (do
+                dictRef <- newSTRef Map.empty
+                let fun = do
+                        line <- hGetLine han
+                        case dropSpaces line of
+                            '#':'d':'e':'f':'i':'n':'e':tl -> putStrLn tl
+                            _ -> putStrLn "nothing to see here"
+                        stToIO $ modifySTRef dictRef (\x -> Map.insert "key" line x)
+                GHC.IO.ioToST fun
+                dictVal <- readSTRef dictRef
+                case dictVal Map.!? "key" of
+                    Just x -> return $ putStrLn x
+                    Nothing -> return $ putStrLn "fail"
+            )
+    where
+    cont = normal han dict
+    dropSpaces = dropWhile isSpace
+    fstWord = takeWhile isAlphaNum
+    {-
+    dirty = let line1 = dropSpaces line in
             let line2 = stripPrefix "#" line1 in
             case line2 of
                 Nothing ->
@@ -38,13 +57,7 @@ normal han dict = do
                     let b = 
                 False ->
                     normal han (Map.insert "a" line dict)
-            -}
-            putStrLn line
-            return dict
-    where
-    cont = normal han dict
-    dropSpaces = dropWhile isSpace
-    fstWord = takeWhile isAlphaNum
+    -}
 
 {-@ ignore main @-}
 main :: IO ()
