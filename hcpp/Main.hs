@@ -14,6 +14,10 @@ import Data.List
 import Data.Char
 import qualified GHC.IO
 
+{-
+  #define FAKE DEF
+-}
+
 data ConsoleOptions where
     Help :: ConsoleOptions
     Version :: ConsoleOptions
@@ -22,25 +26,31 @@ data ConsoleOptions where
 {-@ ignore normal @-}
 normal :: Handle -> Map.Map String String -> IO ()
 normal han dict = do
-    done <- hIsEOF han
-    case done of
-        True ->
-            return ()
-        False ->
-            join $ stToIO (do
-                dictRef <- newSTRef Map.empty
-                let fun = do
+    join $ stToIO (do
+        dictRef <- newSTRef Map.empty
+        let fun :: IO () = do
+                done <- hIsEOF han
+                case done of
+                    True ->
+                        return ()
+                    False -> do
                         line <- hGetLine han
                         case dropSpaces line of
-                            '#':'d':'e':'f':'i':'n':'e':tl -> putStrLn tl
-                            _ -> putStrLn "nothing to see here"
-                        stToIO $ modifySTRef dictRef (\x -> Map.insert "key" line x)
-                GHC.IO.ioToST fun
-                dictVal <- readSTRef dictRef
-                case dictVal Map.!? "key" of
-                    Just x -> return $ putStrLn x
-                    Nothing -> return $ putStrLn "fail"
-            )
+                            '#':'d':'e':'f':'i':'n':'e':tl ->
+                                putStrLn tl
+                            _ ->
+                                putStrLn line
+                        stToIO $ modifySTRef dictRef (Map.insert "key" line)
+                        fun
+        GHC.IO.ioToST fun
+        dictVal <- readSTRef dictRef
+        {-
+        case dictVal Map.!? "key" of
+            Just x -> return $ putStrLn x
+            Nothing -> return $ putStrLn "fail"
+        -}
+        return $ return ()
+        )
     where
     cont = normal han dict
     dropSpaces = dropWhile isSpace
@@ -94,7 +104,6 @@ main = do
             return ()
         Just a -> do
             normal stdin Map.empty
-            return ()
     where
     getOpt__ = getOpt
         Permute
