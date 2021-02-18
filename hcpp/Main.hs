@@ -78,7 +78,7 @@ main = do
         case errors of
             hd:tl -> do
                 liftIO $ hPutStrLn stderr hd
-                MaybeT $ return Nothing
+                mzero
             _ ->
                 return ()
         case opts of
@@ -87,7 +87,7 @@ main = do
                 MaybeT $ return Nothing
             Version:tl -> do
                 liftIO $ hPutStrLn stderr versionMesg__
-                MaybeT $ return Nothing
+                mzero
             _ ->
                 return ()
         case nonOpts of
