@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, ScopedTypeVariables #-}
+{-# LANGUAGE GADTs, ScopedTypeVariables, ForeignFunctionInterface #-}
 {-@ LIQUID "--reflection" @-}
 module Main (main) where
 import System.Environment
@@ -55,23 +55,10 @@ normal han dict = do
     cont = normal han dict
     dropSpaces = dropWhile isSpace
     fstWord = takeWhile isAlphaNum
-    {-
-    dirty = let line1 = dropSpaces line in
-            let line2 = stripPrefix "#" line1 in
-            case line2 of
-                Nothing ->
-                    cont
-                Just a ->
-                    let line3 = dropSpaces a in
-                    let n = fstWord in
-                    let b = 
-                False ->
-                    normal han (Map.insert "a" line dict)
-    -}
 
-{-@ ignore main @-}
 main :: IO ()
 main = do
+    hSetEncoding stdin utf8
     argv <- getArgs
     let (opts :: [ConsoleOptions], nonOpts :: [String], errors :: [String]) = getOpt__ argv
     exitEarly <- runMaybeT (do
