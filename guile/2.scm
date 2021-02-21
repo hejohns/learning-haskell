@@ -13,9 +13,15 @@ coding: utf-8
    (call/cc (lambda (x)
              (set! f x)
              (x x))))))
-(define cont
+(define label
  #f)
-(set/cc! cont)
+(define volatile
+ 0)
+(set/cc! label)
+(display volatile)
+(newline)
+(set! volatile
+ (+ volatile 1))
 (display "hi")
 (newline)
-(cont #f)
+(label #f)
