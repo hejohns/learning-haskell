@@ -28,6 +28,7 @@ normal :: Handle -> Map.Map String String -> IO ()
 normal han dict = do
     join $ stToIO (do
         dictRef <- newSTRef Map.empty
+        dictVal <- readSTRef dictRef
         let fun :: IO () = do
                 done <- hIsEOF han
                 case done of
@@ -37,13 +38,19 @@ normal han dict = do
                         line <- hGetLine han
                         case dropSpaces line of
                             '#':'d':'e':'f':'i':'n':'e':tl ->
-                                putStrLn tl
+                                putStrLn $ fstWord $ dropSpaces tl
+                            hd:tl ->
+                                case dictVal Map.!? (fstWord (hd:tl)) of
+                                Just body ->
+                                    putStrLn body
+                                Nothing ->
+                                    putStrLn line
                             _ ->
                                 putStrLn line
                         stToIO $ modifySTRef dictRef (Map.insert "key" line)
+                        dictVal <- stToIO $ readSTRef dictRef
                         fun
         GHC.IO.ioToST fun
-        dictVal <- readSTRef dictRef
         {-
         case dictVal Map.!? "key" of
             Just x -> return $ putStrLn x
@@ -71,26 +78,27 @@ main = do
         case opts of
             Help:tl -> do
                 liftIO $ hPutStrLn stderr helpMesg__
-                MaybeT $ return Nothing
+                mzero
             Version:tl -> do
                 liftIO $ hPutStrLn stderr versionMesg__
                 mzero
             _ ->
                 return ()
         case nonOpts of
-            hd:tl ->
+            hd:tl -> do
             -- read from file
-                return ()
+                fh <- liftIO $ openFile hd ReadMode
+                return fh
             _ ->
             -- read from stdin
-                return ()
+                return stdin
         )
     case exitEarly of
         Nothing -> 
             -- exit early
             return ()
-        Just a -> do
-            normal stdin Map.empty
+        Just fh -> do
+            normal fh Map.empty
     where
     getOpt__ = getOpt
         Permute
