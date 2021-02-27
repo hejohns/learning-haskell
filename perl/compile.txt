@@ -1,0 +1,1 @@
+gcc -std=c11 -ggdb -I/usr/lib/x86_64-linux-gnu/perl/5.32.1/CORE -L/usr/lib/x86_64-linux-gnu/ hello.c -lperl -o hello
