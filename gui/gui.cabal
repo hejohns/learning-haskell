@@ -20,15 +20,11 @@ executable gui
   main-is:             Main.hs
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.14 && <4.15,
-                       gi-gtk,
-                       gi-gtk-declarative,
-                       gi-gtk-declarative-app-simple,
-                       text,
-                       pipes,
-                       vector
+  build-depends:       base >= 4.14,
+                       gi-gtk >= 3.0,
+                       haskell-gi-base
   -- hs-source-dirs:
   default-language:    Haskell2010
   ghc-options:         -threaded
-                       -O3
                        -with-rtsopts=-N
+                       -O3
