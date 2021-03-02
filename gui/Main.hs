@@ -15,6 +15,6 @@ activate app = do
 
 main :: IO ()
 main = do
-    app <- new Gtk.Application [#applicationId := "helloWorld"]
+    app <- new Gtk.Application [#applicationId := "edu.umich.hejohns.xournal"]
     on app #activate (activate app)
     #run app Nothing >> return ()
